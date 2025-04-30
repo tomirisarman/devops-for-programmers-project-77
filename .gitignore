@@ -1,0 +1,4 @@
+.idea
+local
+terraform/.terraform
+terraform/secrets.auto.tfvars
