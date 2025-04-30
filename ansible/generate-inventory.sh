@@ -7,5 +7,5 @@ COUNTER=0
 echo "[all]"
 for ip in $IPS; do
   ((COUNTER++))
-  echo "vm$COUNTER ansible_host=$ip ansible_user=admin ansible_ssh_private_key_file=~/.ssh/id_dev"
+  echo "vm$COUNTER ansible_host=$ip"
 done
