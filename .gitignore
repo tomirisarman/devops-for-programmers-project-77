@@ -1,9 +1,10 @@
 .idea
 .DS_Store
+vault_password_file
 local
 terraform/.terraform
 terraform/secrets.auto.tfvars
 terraform/terraform.tfstate*
 terraform/.terraform.lock.hcl
-app/local
-app/app
+project/local
+project/app
