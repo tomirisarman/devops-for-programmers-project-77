@@ -150,3 +150,47 @@ resource "yandex_vpc_security_group" "sg-1" {
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+resource "yandex_alb_http_router" "alb-router" {
+  name = "my-http-router"
+  labels = {
+    tf-label    = "tf-label-value"
+    empty-label = "s"
+  }
+}
+
+resource "yandex_alb_load_balancer" "my_alb" {
+  name = "my-load-balancer"
+
+  network_id = yandex_vpc_network.network-1.id
+
+  allocation_policy {
+    location {
+      zone_id   = "kz1-a"
+      subnet_id = yandex_vpc_subnet.subnet-1.id
+    }
+  }
+
+  listener {
+    name = "my-listener"
+    endpoint {
+      address {
+        external_ipv4_address {
+        }
+      }
+      ports = [8080]
+    }
+    http {
+      handler {
+        http_router_id = yandex_alb_http_router.alb-router.id
+      }
+    }
+  }
+
+  log_options {
+    discard_rule {
+      http_code_intervals = ["HTTP_2XX"]
+      discard_percent     = 75
+    }
+  }
+}
