@@ -1,6 +1,9 @@
 .idea
+.DS_Store
 local
 terraform/.terraform
 terraform/secrets.auto.tfvars
 terraform/terraform.tfstate*
 terraform/.terraform.lock.hcl
+app/local
+app/app
