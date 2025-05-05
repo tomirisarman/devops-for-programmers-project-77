@@ -6,12 +6,17 @@ prepare-vault-file:
 terraform-decrypt-secrets:
 	@bash -c 'ansible-vault decrypt terraform/secrets/vault.secrets.auto.tfvars \
 		--vault-pass-file vault_password_file --output terraform/secrets.auto.tfvars'
+	@bash -c 'ansible-vault decrypt terraform/secrets/vault.secrets.backend.tfvars \
+		--vault-pass-file vault_password_file --output terraform/secrets.backend.tfvars'
 
 ansible-edit-secrets:
 	@bash -c 'ansible-vault edit ansible/group_vars/all/vault.yml \
 		--vault-pass-file vault_password_file'
 
-run-terraform: terraform-decrypt-secrets
+init-terraform:
+	cd terraform && terraform init -backend-config=secrets.backend.tfvars
+
+run-terraform: terraform-decrypt-secrets init-terraform
 	cd terraform && terraform apply
 	rm -f terraform/secrets.auto.tfvars
 
