@@ -3,7 +3,7 @@
 vault_password_file
 local
 terraform/.terraform
-terraform/secrets.auto.tfvars
+terraform/secrets.*.tfvars
 terraform/terraform.tfstate*
 terraform/.terraform.lock.hcl
 project/local
