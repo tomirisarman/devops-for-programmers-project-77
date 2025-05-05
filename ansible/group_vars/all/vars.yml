@@ -1,3 +1,23 @@
 ansible_user: admin
 ansible_ssh_private_key_file: ~/.ssh/id_dev
 ansible_ssh_common_args: '-o StrictHostKeyChecking=accept-new'
+
+app_image_name: artomiris/simple-php-blog
+app_image_tag: latest
+app_port: 8080
+
+db_port: 5432
+db_name: "{{vault.db_name}}"
+db_host: "{{vault.db_host}}"
+db_username: "{{vault.db_username}}"
+db_password: "{{vault.db_password}}"
+
+datadog_api_key: "{{vault.datadog_api_key}}"
+datadog_site: us5.datadoghq.com
+datadog_disable_untracked_checks: true
+datadog_checks:
+  process:
+    init_config:
+    instances:
+      - name: localhost
+        url: http://0.0.0.0:8080

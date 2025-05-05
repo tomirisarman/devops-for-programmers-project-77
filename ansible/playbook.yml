@@ -1,4 +1,47 @@
 - hosts: all
+  become: true
+  pre_tasks:
+    - name: Run "apt-get update" to avoid error 404
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 43200
+  roles:
+    - role: geerlingguy.pip
   tasks:
-  - name: Example from an Ansible Playbook
-    ansible.builtin.ping:
+    - name: Creates app directory
+      ansible.builtin.file:
+        path: /app/services/caddy
+        state: directory
+
+    - name: Copy .env file
+      ansible.builtin.template:
+        src: templates/.env.j2
+        dest: /app/.env
+
+    - name: Copy docker-compose.yml file
+      ansible.builtin.template:
+        src: templates/docker-compose.yml.j2
+        dest: /app/docker-compose.yml
+
+    - name: Copy Caddyfile
+      ansible.builtin.template:
+        src: files/Caddyfile
+        dest: /app/services/caddy/Caddyfile
+
+    - name: Copy migration
+      ansible.builtin.template:
+        src: files/init.sql
+        dest: /app/init.sql
+
+    - name: Create and start services
+      community.docker.docker_compose_v2:
+        project_src: /app
+      register: output
+
+    - name: Show results
+      ansible.builtin.debug:
+        var: output
+
+    - name: Import the Datadog Agent role from the Datadog collection
+      import_role:
+        name: datadog.dd.agent

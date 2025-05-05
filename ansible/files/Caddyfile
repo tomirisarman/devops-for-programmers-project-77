@@ -1,0 +1,12 @@
+localhost {
+  log {
+    format json
+  }
+
+  # Компрессия
+  encode zstd
+  # Самоподписной сертификат
+  tls internal
+
+  reverse_proxy /* web:8080
+}

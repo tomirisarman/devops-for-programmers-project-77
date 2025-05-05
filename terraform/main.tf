@@ -1,19 +1,3 @@
-terraform {
-  required_providers {
-    yandex = {
-      source = "yandex-cloud/yandex"
-    }
-  }
-  required_version = ">= 0.13"
-}
-
-provider "yandex" {
-  zone = "kz1-a"
-  endpoint = "api.yandexcloud.kz:443"
-  token = var.yc_token
-  folder_id = var.folder_id
-}
-
 resource "yandex_iam_service_account" "ig-sa" {
   name        = "ig-sa"
   description = "Сервисный аккаунт для управления группой ВМ."
@@ -79,7 +63,7 @@ EOF
   }
 
   allocation_policy {
-    zones = ["kz1-a"]
+    zones = [var.zone]
   }
 
   deploy_policy {
@@ -99,13 +83,17 @@ EOF
   }
 }
 
+data "yandex_alb_target_group" "alb-tg" {
+  name = "target-group"
+}
+
 resource "yandex_vpc_network" "network-1" {
   name = "network1"
 }
 
 resource "yandex_vpc_subnet" "subnet-1" {
   name           = "subnet1"
-  zone           = "kz1-a"
+  zone           = var.zone
   network_id     = "${yandex_vpc_network.network-1.id}"
   v4_cidr_blocks = ["192.168.10.0/24"]
 }
@@ -151,6 +139,38 @@ resource "yandex_vpc_security_group" "sg-1" {
   }
 }
 
+# resource "yandex_cm_certificate" "example" {
+#   name    = "example"
+#   domains = ["example.com"]
+#
+#   managed {
+#     challenge_type = "DNS_CNAME"
+#   }
+# }
+
+resource "yandex_alb_backend_group" "alb-bg" {
+  name = "my-backend-group"
+
+#   session_affinity {
+#     connection {
+#       source_ip = "127.0.0.1"
+#     }
+#   }
+
+  http_backend {
+    name             = "alb-http-backend"
+    weight           = 1
+    port             = 8080
+    target_group_ids = ["${data.yandex_alb_target_group.alb-tg.id}"]
+#     tls {
+#       sni = "backend-domain.internal"
+#     }
+    load_balancing_config {
+      panic_threshold = 50
+    }
+  }
+}
+
 resource "yandex_alb_http_router" "alb-router" {
   name = "my-http-router"
   labels = {
@@ -159,6 +179,39 @@ resource "yandex_alb_http_router" "alb-router" {
   }
 }
 
+resource "yandex_alb_virtual_host" "alb-vhost" {
+  name           = "my-virtual-host"
+  http_router_id = yandex_alb_http_router.alb-router.id
+  route {
+    name = "my-route"
+    http_route {
+      http_route_action {
+        backend_group_id = yandex_alb_backend_group.alb-bg.id
+        timeout          = "3s"
+      }
+    }
+  }
+}
+
+# resource "yandex_alb_virtual_host" "alb-router-virtual-host" {
+#   name         = "my-virtual-host"
+#   http_router_id = yandex_alb_http_router.alb-router.id
+#   authority    = ["example.com"]
+#
+#   route {
+#     name = "default-route"
+#     http_route {
+#       http_backend_group_id = yandex_alb_backend_group.example.id
+#
+#       http_match {
+#         path {
+#           prefix = "/"
+#         }
+#       }
+#     }
+#   }
+# }
+
 resource "yandex_alb_load_balancer" "my_alb" {
   name = "my-load-balancer"
 
@@ -166,7 +219,7 @@ resource "yandex_alb_load_balancer" "my_alb" {
 
   allocation_policy {
     location {
-      zone_id   = "kz1-a"
+      zone_id   = var.zone
       subnet_id = yandex_vpc_subnet.subnet-1.id
     }
   }
