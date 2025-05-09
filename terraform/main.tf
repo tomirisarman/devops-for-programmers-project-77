@@ -139,32 +139,37 @@ resource "yandex_vpc_security_group" "sg-1" {
   }
 }
 
-# resource "yandex_cm_certificate" "example" {
-#   name    = "example"
-#   domains = ["example.com"]
-#
-#   managed {
-#     challenge_type = "DNS_CNAME"
-#   }
-# }
+resource "yandex_dns_zone" "app-dns-zone" {
+  name        = "app-zone"
+  zone        = "redmine75.space."
+  public      = true
+  description = "Zone for app"
+}
+
+resource "yandex_dns_recordset" "app-dns-record" {
+  zone_id = yandex_dns_zone.app-dns-zone.id
+  type    = "A"
+  ttl     = 600
+  data    = [yandex_alb_load_balancer.my_alb.listener[0].endpoint_address[0].address]
+}
+
+resource "yandex_cm_certificate" "app-cert" {
+  name    = "app-cert"
+  domains = ["redmine75.space"]
+
+  managed {
+    challenge_type = "DNS_CNAME"
+  }
+}
+
 
 resource "yandex_alb_backend_group" "alb-bg" {
   name = "my-backend-group"
-
-#   session_affinity {
-#     connection {
-#       source_ip = "127.0.0.1"
-#     }
-#   }
-
   http_backend {
     name             = "alb-http-backend"
     weight           = 1
     port             = 8080
     target_group_ids = ["${data.yandex_alb_target_group.alb-tg.id}"]
-#     tls {
-#       sni = "backend-domain.internal"
-#     }
     load_balancing_config {
       panic_threshold = 50
     }
@@ -182,6 +187,7 @@ resource "yandex_alb_http_router" "alb-router" {
 resource "yandex_alb_virtual_host" "alb-vhost" {
   name           = "my-virtual-host"
   http_router_id = yandex_alb_http_router.alb-router.id
+  authority    = ["redmine75.space"]
   route {
     name = "my-route"
     http_route {
@@ -192,25 +198,6 @@ resource "yandex_alb_virtual_host" "alb-vhost" {
     }
   }
 }
-
-# resource "yandex_alb_virtual_host" "alb-router-virtual-host" {
-#   name         = "my-virtual-host"
-#   http_router_id = yandex_alb_http_router.alb-router.id
-#   authority    = ["example.com"]
-#
-#   route {
-#     name = "default-route"
-#     http_route {
-#       http_backend_group_id = yandex_alb_backend_group.example.id
-#
-#       http_match {
-#         path {
-#           prefix = "/"
-#         }
-#       }
-#     }
-#   }
-# }
 
 resource "yandex_alb_load_balancer" "my_alb" {
   name = "my-load-balancer"
@@ -236,6 +223,17 @@ resource "yandex_alb_load_balancer" "my_alb" {
     http {
       handler {
         http_router_id = yandex_alb_http_router.alb-router.id
+      }
+    }
+  }
+
+  listener {
+    name = "https-listener"
+    port = 443
+    protocol = "HTTPS"
+    tls {
+      default_handler {
+        certificate_ids = [yandex_cm_certificate.app-cert.id]
       }
     }
   }

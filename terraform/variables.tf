@@ -22,3 +22,9 @@ variable "remote_backend_access_key" {
 variable "remote_backend_secret" {
   sensitive = true
 }
+variable "datadog_api_key" {
+  sensitive = true
+}
+variable "datadog_app_key" {
+  sensitive = true
+}
