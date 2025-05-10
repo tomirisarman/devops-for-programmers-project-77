@@ -139,20 +139,6 @@ resource "yandex_vpc_security_group" "sg-1" {
   }
 }
 
-resource "yandex_dns_zone" "app-dns-zone" {
-  name        = "app-zone"
-  zone        = "redmine75.space."
-  public      = true
-  description = "Zone for app"
-}
-
-resource "yandex_dns_recordset" "app-dns-record" {
-  zone_id = yandex_dns_zone.app-dns-zone.id
-  type    = "A"
-  ttl     = 600
-  data    = [yandex_alb_load_balancer.my_alb.listener[0].endpoint_address[0].address]
-}
-
 resource "yandex_cm_certificate" "app-cert" {
   name    = "app-cert"
   domains = ["redmine75.space"]
@@ -161,7 +147,6 @@ resource "yandex_cm_certificate" "app-cert" {
     challenge_type = "DNS_CNAME"
   }
 }
-
 
 resource "yandex_alb_backend_group" "alb-bg" {
   name = "my-backend-group"
@@ -187,7 +172,6 @@ resource "yandex_alb_http_router" "alb-router" {
 resource "yandex_alb_virtual_host" "alb-vhost" {
   name           = "my-virtual-host"
   http_router_id = yandex_alb_http_router.alb-router.id
-  authority    = ["redmine75.space"]
   route {
     name = "my-route"
     http_route {
@@ -228,12 +212,17 @@ resource "yandex_alb_load_balancer" "my_alb" {
   }
 
   listener {
-    name = "https-listener"
-    port = 443
-    protocol = "HTTPS"
-    tls {
-      default_handler {
-        certificate_ids = [yandex_cm_certificate.app-cert.id]
+    name = "my-listener-80"
+    endpoint {
+      address {
+        external_ipv4_address {
+        }
+      }
+      ports = [80]
+    }
+    http {
+      handler {
+        http_router_id = yandex_alb_http_router.alb-router.id
       }
     }
   }

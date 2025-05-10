@@ -18,7 +18,6 @@ init-terraform:
 
 run-terraform: terraform-decrypt-secrets init-terraform
 	cd terraform && terraform apply
-	rm -f terraform/secrets.auto.tfvars
 
 generate-inventory:
 	cd ansible && bash generate-inventory.sh > inventory.ini

@@ -28,10 +28,10 @@
         src: files/Caddyfile
         dest: /app/services/caddy/Caddyfile
 
-    - name: Copy migration
-      ansible.builtin.template:
-        src: files/init.sql
-        dest: /app/init.sql
+    - name: Pull an image
+      community.docker.docker_image:
+        name: '{{app_image_name}}:{{app_image_tag}}'
+        source: pull
 
     - name: Create and start services
       community.docker.docker_compose_v2:
