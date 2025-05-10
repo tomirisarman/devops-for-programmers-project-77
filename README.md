@@ -33,5 +33,8 @@ Apply only ansible:
 ```
 make run-ansible
 ```
+<hr>
 
 Project link: http://redmine76.space/
+
+<img src="https://i2.paste.pics/ac7de11b821a6e05aa050117bd26b59a.png">
