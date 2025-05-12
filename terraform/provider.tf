@@ -11,9 +11,9 @@ terraform {
 }
 
 provider "yandex" {
-  zone = var.zone
-  endpoint = "api.yandexcloud.kz:443"
-  token = var.yc_token
+  zone      = var.zone
+  endpoint  = "api.yandexcloud.kz:443"
+  token     = var.yc_token
   folder_id = var.folder_id
 }
 

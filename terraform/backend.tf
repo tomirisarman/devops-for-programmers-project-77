@@ -3,9 +3,9 @@ terraform {
     endpoints = {
       s3 = "https://storage.yandexcloud.kz"
     }
-    bucket = "yc-hexlet-state"
-    region = "kz1-a"
-    key    = "terraform/terraform.tfstate"
+    bucket                      = "yc-hexlet-state"
+    region                      = "kz1-a"
+    key                         = "terraform/terraform.tfstate"
     skip_region_validation      = true
     skip_credentials_validation = true
     skip_requesting_account_id  = true

@@ -10,8 +10,8 @@ resource "yandex_resourcemanager_folder_iam_member" "admin" {
 }
 
 resource "yandex_compute_instance_group" "ig-1" {
-  name                = "fixed-ig-with-balancer-1"
-  service_account_id  = "${yandex_iam_service_account.ig-sa.id}"
+  name               = "fixed-ig-with-balancer-1"
+  service_account_id = yandex_iam_service_account.ig-sa.id
   instance_template {
     platform_id = "standard-v3"
     resources {
@@ -30,16 +30,16 @@ resource "yandex_compute_instance_group" "ig-1" {
     }
 
     network_interface {
-      network_id         = "${yandex_vpc_network.network-1.id}"
+      network_id         = yandex_vpc_network.network-1.id
       subnet_ids         = ["${yandex_vpc_subnet.subnet-1.id}"]
       security_group_ids = ["${yandex_vpc_security_group.sg-1.id}"]
-      nat = true
+      nat                = true
     }
 
     metadata = {
       serial-port-enable = 1
-      ssh-keys = "admin:${file(var.ssh_public_key)}"
-      user-data =  <<EOF
+      ssh-keys           = "admin:${file(var.ssh_public_key)}"
+      user-data          = <<EOF
 #cloud-config
 datasource:
  Ec2:
@@ -94,14 +94,14 @@ resource "yandex_vpc_network" "network-1" {
 resource "yandex_vpc_subnet" "subnet-1" {
   name           = "subnet1"
   zone           = var.zone
-  network_id     = "${yandex_vpc_network.network-1.id}"
+  network_id     = yandex_vpc_network.network-1.id
   v4_cidr_blocks = ["192.168.10.0/24"]
 }
 
 resource "yandex_vpc_security_group" "sg-1" {
   name        = "Test security group"
   description = "Description for security group"
-  network_id  = "${yandex_vpc_network.network-1.id}"
+  network_id  = yandex_vpc_network.network-1.id
 
   ingress {
     protocol       = "TCP"
