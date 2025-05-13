@@ -30,7 +30,7 @@
 
     - name: Pull an image
       community.docker.docker_image:
-        name: '{{app_image_name}}:{{app_image_tag}}'
+        name: '{{ app_image_name }}:{{ app_image_tag }}'
         source: pull
 
     - name: Create and start services
