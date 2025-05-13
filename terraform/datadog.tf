@@ -1,30 +1,35 @@
-resource "datadog_monitor" "http_check_alive" {
-  name = "App Liveness Check - HTTP"
-  type = "service check"
+resource "datadog_synthetics_test" "http_test" {
+  name = "My Health Check"
+  type = "api"
 
-  query = "\"http.can_connect\".by(\"host\").last(2).count_by_status()"
+  subtype = "http"
+  request_definition {
+    method = "GET"
+    url    = "http://redmine76.space/"
+  }
 
-  message = <<EOM
-App liveness check failed on {{host.name}}.
-Please investigate the application instance.
-EOM
+  assertion {
+    type     = "statusCode"
+    operator = "is"
+    target   = 200
+  }
+
+  locations = ["aws:us-east-1"]
+
+  options_list {
+    tick_every   = 3600
+    monitor_name = "http-test-monitor"
+    monitor_options {
+      renotify_interval    = 300
+      renotify_occurrences = 3
+    }
+  }
 
   tags = [
-    "env:production",
-    "app:liveness",
+    "env:prod",
+    "team:devops"
   ]
 
-  notify_no_data    = false
-  renotify_interval = 60
-  evaluation_delay  = 30
-  no_data_timeframe = 2
-  include_tags      = true
-
-  #   options {
-  #     notify_no_data = false
-  #     thresholds {
-  #       warning  = 1
-  #       critical = 0
-  #     }
-  #   }
+  message = "Health check failed for http://redmine76.space/ @devops-team"
+  status  = "live"
 }

@@ -141,7 +141,7 @@ resource "yandex_vpc_security_group" "sg-1" {
 
 resource "yandex_cm_certificate" "app-cert" {
   name    = "app-cert"
-  domains = ["redmine75.space"]
+  domains = ["redmine76.space"]
 
   managed {
     challenge_type = "DNS_CNAME"
