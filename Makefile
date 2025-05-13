@@ -10,7 +10,7 @@ ansible-edit-secrets:
 	$(MAKE) -C ansible edit-secrets
 
 init-terraform:
-	cd terraform && terraform init -backend-config=secrets.backend.tfvars
+	$(MAKE) -C terraform run
 
 run-terraform:
 	$(MAKE) -C terraform run
