@@ -28,3 +28,12 @@ variable "datadog_api_key" {
 variable "datadog_app_key" {
   sensitive = true
 }
+variable "db_name" {
+  sensitive = true
+}
+variable "db_username" {
+  sensitive = true
+}
+variable "db_password" {
+  sensitive = true
+}
