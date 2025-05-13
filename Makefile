@@ -10,7 +10,7 @@ ansible-edit-secrets:
 	$(MAKE) -C ansible edit-secrets
 
 init-terraform:
-	$(MAKE) -C terraform run
+	$(MAKE) -C terraform init
 
 run-terraform:
 	$(MAKE) -C terraform run
