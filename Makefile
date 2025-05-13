@@ -4,23 +4,19 @@ prepare-vault-file:
 	@echo "$${VAULT_PASSWORD:-examplePassword}" > vault_password_file
 
 terraform-decrypt-secrets:
-	@bash -c 'ansible-vault decrypt terraform/secrets/vault.secrets.auto.tfvars \
-		--vault-pass-file vault_password_file --output terraform/secrets.auto.tfvars'
-	@bash -c 'ansible-vault decrypt terraform/secrets/vault.secrets.backend.tfvars \
-		--vault-pass-file vault_password_file --output terraform/secrets.backend.tfvars'
+	$(MAKE) -C terraform decrypt-secrets
 
 ansible-edit-secrets:
-	@bash -c 'ansible-vault edit ansible/group_vars/all/vault.yml \
-		--vault-pass-file vault_password_file'
+	$(MAKE) -C ansible edit-secrets
 
 init-terraform:
 	cd terraform && terraform init -backend-config=secrets.backend.tfvars
 
-run-terraform: terraform-decrypt-secrets init-terraform
-	cd terraform && terraform apply
+run-terraform:
+	$(MAKE) -C terraform run
 
 generate-inventory:
-	cd ansible && bash generate-inventory.sh > inventory.ini
+	$(MAKE) -C ansible generate-inventory
 
 run-ansible:
-	cd ansible && ansible-playbook -i inventory.ini --vault-password-file ../vault_password_file playbook.yml
+	$(MAKE) -C ansible run
