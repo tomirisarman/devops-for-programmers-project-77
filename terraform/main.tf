@@ -83,10 +83,6 @@ EOF
   }
 }
 
-data "yandex_alb_target_group" "alb-tg" {
-  name = "target-group"
-}
-
 resource "yandex_vpc_network" "network-1" {
   name = "network1"
 }
@@ -149,7 +145,7 @@ resource "yandex_alb_backend_group" "alb-bg" {
     name             = "alb-http-backend"
     weight           = 1
     port             = 8080
-    target_group_ids = ["${data.yandex_alb_target_group.alb-tg.id}"]
+    target_group_ids = [yandex_compute_instance_group.ig-1.application_load_balancer[0].target_group_id]
     load_balancing_config {
       panic_threshold = 50
     }
