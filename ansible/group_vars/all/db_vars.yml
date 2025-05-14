@@ -1,5 +1,0 @@
-db_port: 5432
-db_name: "{{vault.db_name}}"
-db_host: "{{vault.db_host}}"
-db_username: "{{vault.db_username}}"
-db_password: "{{vault.db_password}}"

@@ -16,7 +16,7 @@ datadog_api_key: "{{vault.datadog_api_key}}"
 datadog_site: us5.datadoghq.com
 datadog_disable_untracked_checks: true
 datadog_checks:
-  process:
+  http_check:
     init_config:
     instances:
       - name: localhost

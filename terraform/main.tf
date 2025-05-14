@@ -111,11 +111,6 @@ resource "yandex_vpc_security_group" "sg-1" {
   }
 
   ingress {
-    protocol       = "ANY"
-    v4_cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
     protocol       = "TCP"
     v4_cidr_blocks = ["0.0.0.0/16"]
     port           = 80

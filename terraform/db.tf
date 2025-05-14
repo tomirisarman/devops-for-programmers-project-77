@@ -43,5 +43,14 @@ resource "local_file" "ansible_db_vars" {
     db       = var.db_name
   })
 
-  filename = "${path.module}/../ansible/group_vars/all/db_vars.yml"
+  filename = "${path.module}/../ansible/group_vars/all/db_vault.yml"
+}
+
+# Щифрует данные
+resource "null_resource" "encrypt_ansible_vault" {
+  depends_on = [local_file.ansible_db_vars]
+
+  provisioner "local-exec" {
+    command = "ansible-vault encrypt ${path.module}/../ansible/group_vars/all/db_vault.yml --vault-password-file ${path.module}/../vault_password_file"
+  }
 }
